@@ -16,6 +16,10 @@ body {
   display: none; 
 }
 
+canvas {
+  display: none;
+}
+
 header {
   padding: 20px;
   display: flex;

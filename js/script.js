@@ -64,6 +64,82 @@ window.onload = function() {
     scroll();
     update();
   },500);
+
+  //WEBGL
+
+  var scene = new THREE.Scene();
+
+  var camera = new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth / window.innerHeight,
+    1,
+    1000
+  );
+  camera.position.z = 10;
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight /*updateStyle*/);
+  document.body.appendChild(renderer.domElement); //create a <canvas> element
+
+  let canvas = document.querySelector("canvas");
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+
+  window.onresize = function() {
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+  };
+
+  //LIGHTS
+
+  var light = new THREE.PointLight(0xffffff, 20, 100);
+  light.position.set(0, 85, 25);
+  scene.add(light);
+
+  var ambientLight = new THREE.AmbientLight(0xdedede);
+  scene.add(ambientLight);
+
+  //CONTROLS
+  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.campingFactor = 0.25;
+  controls.enableZoom = false;
+
+  //OBJ
+  var objLoader = new THREE.OBJLoader();
+  objLoader.setPath("obj/");
+
+  var objMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    wireframe: true
+  });
+
+  objLoader.load(
+    "submariner.obj",
+    function(object) {
+      object.traverse(function(node) {
+        if (node.isMesh) node.material = objMaterial;
+      });
+
+      object.position.set(0, 0, 0);
+      object.scale.set(6.5, 6.5, 6.5);
+
+      scene.add(object);
+    },
+    function(xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+    function(error) {
+      console.log("An error happened");
+    }
+  );
+
+  function animate() {
+    requestAnimationFrame( animate );
+    renderer.render( scene, camera );
+  }
+  animate();
+
 }
 
 //CHANGE SCROLL SPEED
@@ -96,7 +172,7 @@ function scroll(){
       }
 
       canWheel = false;
-      setTimeout(()=>{ canWheel = true },1000);
+      setTimeout(()=>{ canWheel = true },2000);
       let tween = TweenMax.to(window, scrollSpeed ,{scrollTo: index * window.innerHeight, ease: Power3.easeOut});
       tween.eventCallback("onStart",function(){
         animation(index);
